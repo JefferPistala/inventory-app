@@ -1,0 +1,23 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.current-stock {
+  margin-top: -8px;
+}
+
+.sale {
+  color: #c62828;
+}
+
+.no-data {
+  padding: 16px;
+  text-align: center;
+}

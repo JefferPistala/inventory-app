@@ -1,1 +1,113 @@
-<p>transaction-list works!</p>
+@if (selectedProduct(); as product) {
+  <h1>Historial: {{ product.name }}</h1>
+  <p class="current-stock">Stock actual: <strong>{{ product.stock }}</strong></p>
+} @else {
+  <h1>Transacciones</h1>
+}
+
+<form class="filters" [formGroup]="filtersForm" (ngSubmit)="search()">
+  <mat-form-field>
+    <mat-label>Producto</mat-label>
+    <mat-select formControlName="productId">
+      <mat-option [value]="null">Todos</mat-option>
+      @for (product of products(); track product.id) {
+        <mat-option [value]="product.id">{{ product.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Tipo</mat-label>
+    <mat-select formControlName="type">
+      <mat-option [value]="null">Todos</mat-option>
+      <mat-option value="Purchase">Compra</mat-option>
+      <mat-option value="Sale">Venta</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Rango de fechas</mat-label>
+    <mat-date-range-input [rangePicker]="dateRangePicker">
+      <input matStartDate formControlName="from" placeholder="Desde" />
+      <input matEndDate formControlName="to" placeholder="Hasta" />
+    </mat-date-range-input>
+    <mat-datepicker-toggle matIconSuffix [for]="dateRangePicker" />
+    <mat-date-range-picker #dateRangePicker />
+  </mat-form-field>
+
+  <button mat-flat-button type="submit">Buscar</button>
+  <button mat-button type="button" (click)="clearFilters()">Limpiar</button>
+  <span class="spacer"></span>
+  <a
+    mat-flat-button
+    routerLink="/transactions/new"
+    [queryParams]="{ productId: filtersForm.controls.productId.value }"
+  >
+    Nueva transacción
+  </a>
+</form>
+
+<table mat-table [dataSource]="transactions()">
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+    <td mat-cell *matCellDef="let transaction">
+      {{ transaction.transactionDate | date: 'dd/MM/yyyy HH:mm' }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="type">
+    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+    <td mat-cell *matCellDef="let transaction" [class.sale]="transaction.type === 'Sale'">
+             {{ typeLabel(transaction.type) }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="product">
+    <th mat-header-cell *matHeaderCellDef>Producto</th>
+    <td mat-cell *matCellDef="let transaction">{{ transaction.productName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="quantity">
+    <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+    <td mat-cell *matCellDef="let transaction">{{ transaction.quantity }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="unitPrice">
+    <th mat-header-cell *matHeaderCellDef>Precio unitario</th>
+    <td mat-cell *matCellDef="let transaction">{{ transaction.unitPrice | currency: 'USD' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="totalPrice">
+    <th mat-header-cell *matHeaderCellDef>Total</th>
+    <td mat-cell *matCellDef="let transaction">{{ transaction.totalPrice | currency: 'USD' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="detail">
+    <th mat-header-cell *matHeaderCellDef>Detalle</th>
+    <td mat-cell *matCellDef="let transaction">{{ transaction.detail }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let transaction">
+      <a mat-button [routerLink]="['/transactions', transaction.id, 'edit']">Editar</a>
+      <button mat-button type="button" (click)="deleteTransaction(transaction)">Eliminar</button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let transaction; columns: displayedColumns"></tr>
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+      No se encontraron transacciones
+    </td>
+  </tr>
+</table>
+
+<mat-paginator
+  [length]="totalCount()"
+  [pageIndex]="currentPage() - 1"
+  [pageSize]="pageSize()"
+  [pageSizeOptions]="[5, 10, 20]"
+  (page)="changePage($event)"
+/>
