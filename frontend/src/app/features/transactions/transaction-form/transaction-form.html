@@ -1,1 +1,74 @@
-<p>transaction-form works!</p>
+<h1>{{ isEditMode() ? 'Editar transacción' : 'Nueva transacción' }}</h1>
+
+<form class="transaction-form" [formGroup]="transactionForm" (ngSubmit)="save()">
+  <mat-form-field>
+    <mat-label>Producto</mat-label>
+    <mat-select formControlName="productId">
+      @for (product of products(); track product.id) {
+        <mat-option [value]="product.id">{{ product.name }}</mat-option>
+      }
+    </mat-select>
+    <mat-error>Debe seleccionar un producto</mat-error>
+  </mat-form-field>
+
+  @if (availableStock() !== null) {
+    <p class="hint">Stock disponible: <strong>{{ availableStock() }}</strong></p>
+  }
+
+  <mat-form-field>
+    <mat-label>Tipo</mat-label>
+    <mat-select formControlName="type">
+      <mat-option value="Purchase">Compra</mat-option>
+      <mat-option value="Sale">Venta</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Cantidad</mat-label>
+    <input matInput type="number" formControlName="quantity" />
+    @if (transactionForm.controls.quantity.hasError('required')) {
+      <mat-error>La cantidad es obligatoria</mat-error>
+    }
+    @if (transactionForm.controls.quantity.hasError('min')) {
+      <mat-error>La cantidad debe ser al menos 1</mat-error>
+    }
+    @if (transactionForm.controls.quantity.hasError('pattern')) {
+      <mat-error>La cantidad debe ser un número entero</mat-error>
+    }
+  </mat-form-field>
+
+  @if (transactionForm.hasError('insufficientStock')) {
+    <p class="stock-error">
+      La venta supera el stock disponible ({{ availableStock() }} unidades).
+    </p>
+  }
+
+  <mat-form-field>
+    <mat-label>Precio unitario</mat-label>
+    <input matInput type="number" formControlName="unitPrice" />
+    @if (transactionForm.controls.unitPrice.hasError('required')) {
+      <mat-error>El precio unitario es obligatorio</mat-error>
+    }
+    @if (transactionForm.controls.unitPrice.hasError('min')) {
+      <mat-error>El precio unitario no puede ser negativo</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Detalle</mat-label>
+    <textarea matInput formControlName="detail" rows="3"></textarea>
+    <mat-error>El detalle no puede superar 500 caracteres</mat-error>
+  </mat-form-field>
+
+  <p class="total">
+    Total:
+    <strong>
+      {{ (transactionForm.value.quantity ?? 0) * (transactionForm.value.unitPrice ?? 0) | currency: 'USD' }}
+    </strong>
+  </p>
+
+  <div class="actions">
+    <a mat-button routerLink="/transactions">Cancelar</a>
+    <button mat-flat-button type="submit" [disabled]="isSaving()">Guardar</button>
+  </div>
+</form>

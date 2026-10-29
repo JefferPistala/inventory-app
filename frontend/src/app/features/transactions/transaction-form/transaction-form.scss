@@ -1,0 +1,21 @@
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+}
+
+.hint,
+.total {
+  margin: 0 0 16px;
+}
+
+.stock-error {
+  margin: -8px 0 16px;
+  color: #c62828;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
