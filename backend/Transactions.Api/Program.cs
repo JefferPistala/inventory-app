@@ -61,4 +61,3 @@ app.UseCors(FrontendCorsPolicy);
 app.MapControllers();
 
 app.Run();
-app.Run();
