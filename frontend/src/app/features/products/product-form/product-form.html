@@ -1,1 +1,62 @@
-<p>product-form works!</p>
+<h1>{{ isEditMode() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+
+<form class="product-form" [formGroup]="productForm" (ngSubmit)="save()">
+  <mat-form-field>
+    <mat-label>Nombre</mat-label>
+    <input matInput formControlName="name" />
+    @if (productForm.controls.name.hasError('required')) {
+      <mat-error>El nombre es obligatorio</mat-error>
+    }
+    @if (productForm.controls.name.hasError('pattern')) {
+      <mat-error>El nombre es obligatorio</mat-error>
+    }
+    @if (productForm.controls.name.hasError('maxlength')) {
+      <mat-error>El nombre no puede superar 150 caracteres</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Descripción</mat-label>
+    <textarea matInput formControlName="description" rows="3"></textarea>
+    <mat-error>La descripción no puede superar 500 caracteres</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Categoría</mat-label>
+    <mat-select formControlName="categoryId">
+      @for (category of categories(); track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+    <mat-error>Debe seleccionar una categoría</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>URL de la imagen</mat-label>
+    <input matInput formControlName="imageUrl" />
+    @if (productForm.controls.imageUrl.hasError('pattern')) {
+      <mat-error>La imagen debe ser una URL válida</mat-error>
+    }
+    @if (productForm.controls.imageUrl.hasError('maxlength')) {
+      <mat-error>La URL no puede superar 500 caracteres</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Precio</mat-label>
+    <input matInput type="number" formControlName="price" />
+    @if (productForm.controls.price.hasError('required')) {
+      <mat-error>El precio es obligatorio</mat-error>
+    }
+    @if (productForm.controls.price.hasError('min')) {
+      <mat-error>El precio no puede ser negativo</mat-error>
+    }
+  </mat-form-field>
+
+  <p class="hint">El stock no se edita aquí: cambia con las compras y ventas.</p>
+
+  <div class="actions">
+    <a mat-button routerLink="/products">Cancelar</a>
+    <button mat-flat-button type="submit" [disabled]="isSaving()">Guardar</button>
+  </div>
+</form>

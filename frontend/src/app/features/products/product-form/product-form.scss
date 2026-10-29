@@ -1,0 +1,16 @@
+.product-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+}
+
+.hint {
+  margin: 0 0 16px;
+  color: #666;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
